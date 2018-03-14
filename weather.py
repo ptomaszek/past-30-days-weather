@@ -5,7 +5,19 @@ import xlsxwriter
 import datetime
 
 
-api_key = 'abc123'
+def load_properties(filepath, sep='='):
+    """
+    Read the file passed as parameter as a properties file.
+    """
+    props = {}
+    with open(filepath, "rt", encoding="utf-8") as f:
+        for line in f:
+            l = line.strip()
+            key_value = l.split(sep)
+            key = key_value[0].strip()
+            value = sep.join(key_value[1:]).strip().strip('"')
+            props[key] = value
+    return props
 
 
 # copied and amended from https://github.com/apixu/apixu-python/tree/master/apixu
@@ -55,11 +67,17 @@ def toDateStr(date):
     
 def toDate(dateStr):
     return datetime.datetime.strptime(dateStr, "%Y-%m-%d").date()
-    
+
+
+props = load_properties('pogoda.ini')
+api_key = props['apiKey']
+lastNDays = props['zDni']
+city = props['miejscowosc']
+
 today = datetime.date.today()
 
-query = input('Miejscowosc [Żyrzyn] : ') or 'Żyrzyn'
-countBack = int(input('Z ilu ostatnich dni [29] : ') or 29)
+query = input('Miejscowosc [{}] : '.format(city)) or city
+countBack = int(input('Z ilu ostatnich dni [{}] : '.format(lastNDays)) or lastNDays)
 print()
 
 fromDate = today - datetime.timedelta(days=countBack)
